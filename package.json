@@ -1,0 +1,37 @@
+{
+  "name": "circles",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --compilers js:babel-register --recursive ./test/*.js",
+    "start": "webpack-dev-server --config ./webpack.config.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-core": "^6.25.0",
+    "babel-eslint": "^7.2.3",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.24.1",
+    "babel-preset-env": "^1.5.2",
+    "babel-preset-flow": "^6.23.0",
+    "babel-register": "^6.24.1",
+    "css-loader": "^0.28.7",
+    "eslint": "^4.0.0",
+    "eslint-plugin-flowtype": "^2.34.0",
+    "flow-bin": "^0.48.0",
+    "html-webpack-plugin": "^2.28.0",
+    "mocha": "^3.4.2",
+    "node-sass": "^4.6.1",
+    "sass-loader": "^6.0.6",
+    "style-loader": "^0.19.0",
+    "webpack": "^2.7.0",
+    "webpack-dev-server": "^2.9.4"
+  },
+  "dependencies": {
+    "loader-utils": "^1.1.0",
+    "ramda": "^0.24.1"
+  }
+}
