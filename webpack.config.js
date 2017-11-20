@@ -3,10 +3,7 @@ const { resolve } = require('path');
 
 module.exports = {
   devtool: 'source-map',
-  entry: {
-    app: './src/index.js',
-    wobble: './src/wobble.js'
-  },
+  entry: './src/index.js',
   output: {
     filename: '[name].js',
     path: resolve(__dirname, 'dist')
@@ -30,8 +27,6 @@ module.exports = {
     new HtmlWebpackPlugin( {
       template: './app.html',
       title: 'Proprietary Noise',
-      chunks: [ 'wobble' ],
-      filename: 'index.html'
     } )
   ]
 };
