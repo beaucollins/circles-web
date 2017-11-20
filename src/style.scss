@@ -1,8 +1,19 @@
 body {
-	background: hsl(0,50%,50%);
+	background: black;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	margin: 0;
 }
 
-g {
+svg {
+	background: transparent;
+	display: block;
+}
+
+svg > g {
 	isolation: isolate;
 }
 

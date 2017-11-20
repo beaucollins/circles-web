@@ -2,9 +2,13 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { resolve } = require('path');
 
 module.exports = {
-  entry: './src/',
+  devtool: 'source-map',
+  entry: {
+    app: './src/index.js',
+    wobble: './src/wobble.js'
+  },
   output: {
-    filename: 'app.js',
+    filename: '[name].js',
     path: resolve(__dirname, 'dist')
   },
 	resolve: {
@@ -23,6 +27,11 @@ module.exports = {
     ],
   },
   plugins: [
-    new HtmlWebpackPlugin()
+    new HtmlWebpackPlugin( {
+      template: './app.html',
+      title: 'Proprietary Noise',
+      chunks: [ 'wobble' ],
+      filename: 'index.html'
+    } )
   ]
 };
