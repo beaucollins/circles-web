@@ -46,7 +46,7 @@ const ring = ( radius: RadiusGenerator, decorator: PathDecorator = v => v ): Ele
     };
 };
 
-const render = ( generator: ElementGenerator) => {
+const render = (generator: ElementGenerator) => {
     const rootNode = generator();
 
     if (document.body) {
@@ -243,4 +243,5 @@ const image = fullScreenSVG(
         ring( ring3 ),
     )
 );
+
 render( image );
