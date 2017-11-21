@@ -5,7 +5,7 @@ import { pipe, reduce, head, tail, defaultTo } from 'ramda';
 import debounce from 'lodash/debounce';
 import throttle from 'lodash/throttle';
 import type { Polar, Point } from './svg';
-import { addAll, add, increment } from './radius-generator';
+import { addAll, increment } from './radius-generator';
 import type { RadiusGenerator } from './radius-generator';
 import './style';
 
@@ -105,7 +105,7 @@ const wave3 = addAll(
 
 const atLeast = ( radius: number, fn: RadiusGenerator ): RadiusGenerator => {
     const c = constant(radius);
-    return add( c, fn );
+    return addAll( c, fn );
 };
 
 const mouseVectorUpdater = (): (() => Polar) => {
