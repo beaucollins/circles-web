@@ -5,23 +5,12 @@ import { pipe, reduce, head, tail, defaultTo } from 'ramda';
 import debounce from 'lodash/debounce';
 import throttle from 'lodash/throttle';
 import type { Polar, Point } from './svg';
-import { addAll, add } from './radius-generator';
+import { addAll, add, increment } from './radius-generator';
 import type { RadiusGenerator } from './radius-generator';
 import './style';
 
 type PathDecorator = (Element) => Element;
 
-const increment = ( to: number, magnitude = 1, beginningAt = 0 ) => {
-    return fn => {
-        const sign = to < beginningAt ? -1 : 1;
-        const results = [];
-        let current = beginningAt; 
-        const complete = ( sign === 1 ? (() => current >= to) : (() => current <= to ));
-        do {
-            results.push( fn( current ) );
-            current += magnitude * sign;
-        } while( ! complete() );
-        return results;
     };
 };
 

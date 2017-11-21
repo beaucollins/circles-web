@@ -32,3 +32,17 @@ export const add = (fn1: RadiusGenerator, fn2: RadiusGenerator): RadiusGenerator
 export const invert = ( fn: RadiusGenerator ): RadiusGenerator => {
     return degree => -1 * fn( degree );
 };
+
+export const increment = ( to: number, magnitude: number = 1, beginningAt: number = 0 ) => {
+    return (fn) => {
+        const sign = to < beginningAt ? -1 : 1;
+        const results = [];
+        let current = beginningAt;
+        const complete = ( sign === 1 ? (() => current >= to) : (() => current <= to ));
+        do {
+            results.push( fn( current ) );
+            current += magnitude * sign;
+        } while( ! complete() );
+        return results;
+    };
+};
