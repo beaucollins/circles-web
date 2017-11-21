@@ -221,9 +221,11 @@ const mouseVector = mouseVectorUpdater();
 
 const mouseDampened = (fn: RadiusGenerator): RadiusGenerator => {
     const anchor = distanceFrom( () => mouseVector().degree );
-    const range = 80;
+    const range = 90;
     const scaleFn = f => {
-        return Math.pow(f, 3);
+        const scaled = f * 2;
+        if ( scaled < 1 ) return 0.5 * Math.pow(scaled, 3);
+        return 0.5 * ( Math.pow(scaled-2, 3) + 2 );
     };
     return addAll(
         degree => {
