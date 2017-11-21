@@ -27,6 +27,7 @@ module.exports = {
     new HtmlWebpackPlugin( {
       template: './app.html',
       title: 'Proprietary Noise',
+      hash: true
     } )
   ]
 };
