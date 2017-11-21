@@ -110,13 +110,6 @@ const wave3 = addAll(
     wave( 4, 1, -0.05 )
 );
 
-const setAttribute = (attribute: string, value: string ): PathDecorator => {
-    return path => {
-        path.setAttribute( attribute, value );
-        return path;
-    };
-};
-
 const atLeast = ( radius: number, fn: RadiusGenerator ): RadiusGenerator => {
     const c = constant(radius);
     return add( c, fn );
@@ -265,9 +258,9 @@ const centeredGroup = ( ... children: PathGenerator[] ) => node(
 
 const image = fullScreenSVG(
     centeredGroup(
-        ring( ring3, setAttribute( 'fill', '#0f0') ),
-        ring( ring1, setAttribute( 'fill', '#00f' ) ),
-        ring( ring2, setAttribute( 'fill', '#f00') ),
+        ring( ring1 ),
+        ring( ring2 ),
+        ring( ring3 ),
     )
 );
 render( image );
