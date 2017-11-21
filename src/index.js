@@ -11,6 +11,10 @@ import './style';
 
 type PathDecorator = (Element) => Element;
 
+const windowCenter = (): Point => {
+    return {
+        x: window.innerWidth * 0.5,
+        y: window.innerHeight * 0.5
     };
 };
 
@@ -119,22 +123,12 @@ const mouseVectorUpdater = (): (() => Polar) => {
     }
     let current: Polar = { degree: 0, radius: 0 };
     let target: Polar = current;
-    let center = {
-        x: window.innerWidth * 0.5,
-        y: window.innerHeight * 0.5
-    };
     const updateVector = (e: CursorEvent) => {
         idle = false;
         speed = 0;
         setIdle();
-        target = vectorBetween(center, { x: e.pageX, y: e.pageY });
+        target = vectorBetween(windowCenter(), { x: e.pageX, y: e.pageY });
     };
-    window.addEventListener('resize', () => {
-        center = {
-            x: window.innerWidth * 0.5,
-            y: window.innerHeight * 0.5    
-        };
-    });
     document.addEventListener( 'mousemove', updateVector );
     document.addEventListener( 'touchstart', (e: TouchEvent) => {
         e.preventDefault();
@@ -230,10 +224,7 @@ const centeredGroup = ( ... children: PathGenerator[] ) => node(
         tag: 'g',
         decorator: (element) => {
             const updateCenter = () => {
-                const center = {
-                    x: window.innerWidth * 0.5,
-                    y: window.innerHeight * 0.5
-                };
+                const center = windowCenter();
                 element.setAttribute( 'transform', `translate(${center.x}, ${center.y})`);            
             };
             window.addEventListener('resize', debounce(() => {
