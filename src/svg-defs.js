@@ -1,3 +1,4 @@
+// @flow
 import { forEachObjIndexed } from 'ramda';
 import type { ElementGenerator } from './svg';
 import { node } from './svg';
