@@ -18,5 +18,17 @@ svg > g {
 }
 
 path {
-	mix-blend-mode: screen;
+	mix-blend-mode: multiply;
+}
+
+path:nth-child(1) {
+	fill: #f0f;
+}
+
+path:nth-child(2) {
+	fill: #0ff;
+}
+
+path:nth-child(3) {
+	fill: #ff0;
 }
