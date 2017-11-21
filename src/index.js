@@ -1,5 +1,5 @@
 // @flow
-import { createSVGElement, polarToCartesian, deg2rad, rad2deg, node } from './svg';
+import { createSVGElement, polarToCartesian, deg2rad, node, vectorBetween } from './svg';
 import type { ElementGenerator } from './svg';
 import { pipe, reduce, head, tail, defaultTo } from 'ramda';
 import debounce from 'lodash/debounce';
@@ -76,17 +76,6 @@ const wave = ( size = 0, count = 1, speed = 1 ) => {
     };
 };
 
-const vectorBetween = (p1: Point, p2: Point): Polar => {
-    const dx = p2.x - p1.x;
-    const dy = p2.y - p1.y;
-    const distance = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-    const radians = Math.atan2(dy, dx);
-    const degrees = (rad2deg(radians) + 360) % 360;
-    return {
-        radius: distance,
-        degree: degrees
-    };
-};
 
 type CursorEvent = { pageX: number, pageY: number };
 
