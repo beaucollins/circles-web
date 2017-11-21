@@ -208,7 +208,7 @@ const ring1 = atLeast(90, mouseDampened( wave1 ) );
 const ring2 = atLeast(90, mouseDampened( wave2 ) );
 const ring3 = atLeast(90, mouseDampened( wave3 ) );
 
-const fullScreenSVG = (... children: PathGenerator[]) => node(
+const fullScreenSVG = (... children: ElementGenerator[]) => node(
     {
         tag: 'svg',
         decorator: (element) => {
@@ -219,7 +219,7 @@ const fullScreenSVG = (... children: PathGenerator[]) => node(
     children
 );
 
-const centeredGroup = ( ... children: PathGenerator[] ) => node(
+const centeredGroup = ( ... children: ElementGenerator[] ) => node(
     {
         tag: 'g',
         decorator: (element) => {
