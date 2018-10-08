@@ -11,19 +11,19 @@ export const defs = ( ... children: ElementGenerator[] ) => node( { tag: 'defs' 
  * DOM Element
  */
 export const attributes = ( atts: {[string]: string} = {} ) => ( element: Element ) => {
-    forEachObjIndexed( (value: string, key: string) => {
-        element.setAttribute( key, value );
-    } , atts );
+	forEachObjIndexed( (value: string, key: string) => {
+		element.setAttribute( key, value );
+	} , atts );
 };
 
 export const radialGradient = ( id: string, stops: Array<{}> ) => node( { tag: 'radialGradient',
-    decorator: attributes( { id } ) },
-    map( ( stop ) => {
-        return node( { tag: 'stop', decorator: attributes( stop ) } );
-    } , stops )
+	decorator: attributes( { id } ) },
+map( ( stop ) => {
+	return node( { tag: 'stop', decorator: attributes( stop ) } );
+} , stops )
 );
 
 export const ringGradient = ( id: string, color: string ) => radialGradient( id, [
-    { offset: '90%', 'stop-color': color, 'stop-opacity': '1' },
-    { offset: '100%', 'stop-color': 'black', 'stop-opacity': '0.1' },
+	{ offset: '90%', 'stop-color': color, 'stop-opacity': '1' },
+	{ offset: '100%', 'stop-color': 'black', 'stop-opacity': '0.1' },
 ] );
