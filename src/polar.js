@@ -9,7 +9,7 @@ export const polarToCartesian = ( polar: Polar ): Point => ( {
     y: Math.sin( deg2rad(polar.degree) ) * polar.radius
 } );
 
- export const vectorBetween = (p1: Point, p2: Point): Polar => {
+export const vectorBetween = (p1: Point, p2: Point): Polar => {
     const dx = p2.x - p1.x;
     const dy = p2.y - p1.y;
     const distance = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));

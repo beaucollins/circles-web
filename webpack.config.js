@@ -2,14 +2,17 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { resolve } = require('path');
 
 module.exports = {
+  mode: 'production',
   devtool: 'source-map',
-  entry: './src/index.js',
+  context: resolve(__dirname, 'src'),
+  entry: './index.js',
   output: {
     filename: '[name].js',
     path: resolve(__dirname, 'dist')
   },
 	resolve: {
-		extensions: [ '.js', '.css', '.scss' ]
+    extensions: [ '.js', '.css', '.scss' ],
+    modules: [ 'src', 'node_modules' ],
 	},
   module: {
     rules: [
@@ -25,9 +28,11 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin( {
-      template: './app.html',
       title: 'Proprietary Noise',
-      hash: true
+      hash: true,
+      meta: {
+        viewport: 'width=device-width, initial-scale=1',
+      },
     } )
   ]
 };
