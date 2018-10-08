@@ -24,9 +24,11 @@ const mousePositionAtEvent = (event: MouseEvent): Point => {
 
 export default (originProvider: () => Point): RadiusGenerator => {
     const springLocations: Map<number, { position: number, speed: number, velocity: number }> = new Map();
-    increment(360, 1)( i => {
-        springLocations.set(i, { position: 0, velocity: 0, speed: 0 });
-    } );
+    increment( i => {
+        const spring = { position: 0, velocity: 0, speed: 0 };
+        springLocations.set(i, spring);
+        return spring;
+    }, 360, 1);
     const tension = 0.01;
     const dampening = 3;
     const spread = 1;
@@ -45,8 +47,8 @@ export default (originProvider: () => Point): RadiusGenerator => {
             const left = ((location - 2) + 360) % 360;
             const right = (location + 2) % 360;
             
-            const leftSpring = springLocations.get(left);
-            const rightSpring = springLocations.get(right);
+            const leftSpring = springLocations.get(left) || {};
+            const rightSpring = springLocations.get(right) || {};
             
             const leftDelta = spread * spring.position - leftSpring.position;
             const rightDelta = spread * spring.position - rightSpring.position;
@@ -71,7 +73,10 @@ export default (originProvider: () => Point): RadiusGenerator => {
             mousePositionAtEvent(event)
         );
         const closest = (Math.round(Math.round(delta.degree) * 0.5) * 2) % 360;
-        springLocations.get( closest ).speed = -250;
+        const location = springLocations.get( closest );
+        if (location) {
+            location.speed = -250;
+        }
     } );
     requestAnimationFrame(update);
     return (degree) => {

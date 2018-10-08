@@ -1,33 +1,36 @@
 // @flow
 import { createSVGElement, polarToCartesian, deg2rad, node, vectorBetween } from './svg';
+import { defs } from './svg-defs';
 import type { ElementGenerator } from './svg';
 import { pipe, reduce, head, tail, defaultTo } from 'ramda';
-import debounce from 'lodash/debounce';
-import throttle from 'lodash/throttle';
+import { debounce, throttle } from 'lodash';
 import type { Polar, Point } from './svg';
 import { addAll, increment } from './radius-generator';
 import type { RadiusGenerator } from './radius-generator';
-import './style';
+import './style.scss';
 
 type PathDecorator = (Element) => Element;
 
 const windowCenter = (): Point => {
-    return {
-        x: window.innerWidth * 0.5,
-        y: window.innerHeight * 0.5
-    };
+    if ( window ) {
+        return {
+            x: window.innerWidth * 0.5,
+            y: window.innerHeight * 0.5
+        };
+    }
+    return { x: 0, y: 0 };
 };
 
 const ring = ( radius: RadiusGenerator, decorator: PathDecorator = v => v ): ElementGenerator => {
     // generate a list of points around a given center
     const path = decorator( createSVGElement('path') );
     const update = () => {
-        let points = increment(360, 2)( pipe(
-            degree => ( { degree, radius: radius(degree) } ),
+        let points: Point[] = increment(pipe(
+            (degree: number) => ( { degree, radius: radius(degree) } ),
             polarToCartesian
-        ) );
+        ), 360, 36);
         let first = defaultTo({ x: 0, y: 0 }, head(points));
-        let d = reduce( ( options, point ) => {
+        let d = reduce( ( options, point: Point ) => {
             const delta = {
                 x: point.x - options.previous.x,
                 y: point.y - options.previous.y
@@ -113,7 +116,7 @@ const mouseVectorUpdater = (): (() => Polar) => {
     const targetViewer = document.createElement('div');
     let idle = true;
     let speed = 0;
-    const setIdle: () => void = throttle( () => {
+    const setIdle = throttle( () => {
         idle = true;
     }, 2000, { leading: false } );
     const body = document.body;
@@ -209,12 +212,13 @@ const ring2 = atLeast(90, mouseDampened( wave2 ) );
 const ring3 = atLeast(90, mouseDampened( wave3 ) );
 
 const fullScreenSVG = (... children: ElementGenerator[]) => node(
+    
     {
         tag: 'svg',
-        decorator: (element) => {
-            element.setAttribute('width', '100%');
-            element.setAttribute('height', '100%');   
-        }
+        decorator: attributes( {
+            width: '100%',
+            height: '100%'
+        } )
     },
     children
 );
@@ -236,7 +240,28 @@ const centeredGroup = ( ... children: ElementGenerator[] ) => node(
     children
 );
 
+const attributes = ( atts: { [string]: string } ) => ( element: Element) => {
+    for( const key in atts ) {
+        element.setAttribute(key, atts[key]);
+    }
+} ;
+
 const image = fullScreenSVG(
+    defs(
+        node( { tag: 'pattern', decorator: attributes( {
+                id: 'dots',
+                width: '50',
+                height: '50',
+                patternUnits: 'userSpaceOnUse'
+            } ) }, [
+            node( { tag: 'circle', decorator: attributes( {
+                cx: '5',
+                cy: '5',
+                r: '2',
+                fill: 'white'
+            } )  })
+        ] )
+    ),
     centeredGroup(
         ring( ring1 ),
         ring( ring2 ),

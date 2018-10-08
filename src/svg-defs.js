@@ -1,11 +1,11 @@
 // @flow
-import { forEachObjIndexed } from 'ramda';
+import { forEachObjIndexed, map } from 'ramda';
 import type { ElementGenerator } from './svg';
 import { node } from './svg';
 
 export const defs = ( ... children: ElementGenerator[] ) => node( { tag: 'defs' }, children );
 
-export const attributes = ( atts = {} ) => ( element ) => {
+export const attributes = ( atts: {[string]: string} = {} ) => ( element: Element ) => {
     forEachObjIndexed( (value, key) => {
         element.setAttribute( key, value );
     } , atts );
@@ -14,7 +14,7 @@ export const attributes = ( atts = {} ) => ( element ) => {
 export const radialGradient = ( id: string, stops: Array<{}> ) => node( { tag: 'radialGradient',
     decorator: attributes( { id } ) },
     map( ( stop ) => {
-        return node( { tag: 'stop', decorator: attributes( stop ) } )
+        return node( { tag: 'stop', decorator: attributes( stop ) } );
     } , stops )
 );
 
