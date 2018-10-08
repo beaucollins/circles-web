@@ -1,15 +1,24 @@
 // @flow
-import { createSVGElement, polarToCartesian, deg2rad, node, vectorBetween } from './svg';
+import { node } from './svg';
+import { vectorBetween } from './polar';
+
 import { defs } from './svg-defs';
-import type { ElementGenerator } from './svg';
-import { pipe, reduce, head, tail, defaultTo } from 'ramda';
+import { reduce } from 'ramda';
 import { debounce, throttle } from 'lodash';
-import type { Polar, Point } from './svg';
-import { addAll, increment } from './radius-generator';
-import type { RadiusGenerator } from './radius-generator';
+import { addAll, distanceFrom, atLeast } from 'radius-generator';
+
+import ring from 'ring';
+import render from 'render';
+import now from 'now';
+import wave from 'wave';
+
+import type { ElementGenerator } from 'svg';
+import type { Polar, Point } from 'polar';
+import type { RadiusGenerator } from 'radius-generator';
+
 import './style.scss';
 
-type PathDecorator = (Element) => Element;
+type CursorEvent = { pageX: number, pageY: number };
 
 const windowCenter = (): Point => {
     if ( window ) {
@@ -19,71 +28,6 @@ const windowCenter = (): Point => {
         };
     }
     return { x: 0, y: 0 };
-};
-
-const ring = ( radius: RadiusGenerator, decorator: PathDecorator = v => v ): ElementGenerator => {
-    // generate a list of points around a given center
-    const path = decorator( createSVGElement('path') );
-    const update = () => {
-        let points: Point[] = increment(pipe(
-            (degree: number) => ( { degree, radius: radius(degree) } ),
-            polarToCartesian
-        ), 360, 36);
-        let first = defaultTo({ x: 0, y: 0 }, head(points));
-        let d = reduce( ( options, point: Point ) => {
-            const delta = {
-                x: point.x - options.previous.x,
-                y: point.y - options.previous.y
-            };
-            return {
-                d: `${options.d} l${delta.x},${delta.y}`,
-                previous: point
-            };
-        }, { d: `M${first.x},${first.y}`, previous: first }, tail(points) );
-        path.setAttribute('d', `${d.d} Z`);
-    };
-    
-    return () => {
-        update();
-        return path;
-    };
-};
-
-const render = (generator: ElementGenerator) => {
-    const rootNode = generator();
-
-    if (document.body) {
-        document.body.appendChild(rootNode);
-    }
-    const update = () => {
-        generator();
-        requestAnimationFrame( update );
-    };
-    requestAnimationFrame(update);
-};
-
-const constant = v => () => v;
-
-const now = () => (new Date()).getTime();
-
-const wave = ( size = 0, count = 1, speed = 1 ) => {
-    return degree => {
-        return Math.sin( deg2rad( degree + now() * speed ) * count ) * size;
-    };
-};
-
-
-type CursorEvent = { pageX: number, pageY: number };
-
-const distanceFrom = ( anchor: () => number ): RadiusGenerator => {
-    return degree => {
-        const a = anchor();
-        return Math.min(
-            Math.abs(a - degree + 360),
-            Math.abs(a - degree),
-            Math.abs(a - degree - 360 )
-        );
-    };
 };
 
 const wave1 = addAll(
@@ -105,11 +49,6 @@ const wave3 = addAll(
     wave( -3, 5, -0.0071 ),
     wave( 4, 1, -0.05 )
 );
-
-const atLeast = ( radius: number, fn: RadiusGenerator ): RadiusGenerator => {
-    const c = constant(radius);
-    return addAll( c, fn );
-};
 
 const mouseVectorUpdater = (): (() => Polar) => {
     const currentViewer = document.createElement('div');

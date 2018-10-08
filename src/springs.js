@@ -1,8 +1,8 @@
 // @flow
-import type { Point } from './svg';
-import type { RadiusGenerator } from './radius-generator';
+import type { RadiusGenerator } from 'radius-generator';
+import type { Point } from './polar';
 
-import { vectorBetween } from './svg';
+import { vectorBetween } from './polar';
 import { increment } from './radius-generator';
 
 const timeDelta = (fn: (delta: number) => void) => {
