@@ -182,7 +182,7 @@ export default class Component extends React.Component<{}, State> {
 	container: Ref<HTMLDivElement> = React.createRef();
 
 	state = {
-		points: 36,
+		points: 60,
 	}
 
 	componentDidMount() {
