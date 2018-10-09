@@ -15,14 +15,16 @@ export type PathDecorator = (Element) => Element;
 /**
  * Create a ring
  */
-export default ( radius: RadiusGenerator, decorator: PathDecorator = v => v ): ElementGenerator => {
+export default ( radius: RadiusGenerator, vertices: () => number = () => 90 ): ElementGenerator => {
 	// generate a list of points around a given center
-	const path = decorator( createSVGElement('path') );
+	const path = createSVGElement('path');
 	const update = () => {
+		const count = vertices();
 		const points: Point[] = increment(pipe(
+			degree => (90 + degree) % 360,
 			(degree: number) => ( { degree, radius: radius(degree) } ),
 			polarToCartesian
-		), 360, 360 / 90);
+		), 360, 360 / (count <= 0 ? 90 : count));
 		const first = defaultTo({ x: 0, y: 0 }, head(points));
 		const d = reduce( ( options, point: Point ) => {
 			const delta = {

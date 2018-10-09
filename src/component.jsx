@@ -1,4 +1,8 @@
-// @flow
+/**
+ * @flow
+ */
+import * as React from 'react';
+import { render } from 'react-dom';
 import { node } from './svg';
 import { vectorBetween } from './polar';
 
@@ -8,25 +12,13 @@ import { debounce, throttle } from 'lodash';
 import { addAll, atLeast, mouseDampened } from 'radius-generator';
 
 import ring from 'ring';
-import render from 'render';
+import ringRender from 'render';
 import wave from 'wave';
 
 import type { ElementGenerator } from 'svg';
 import type { Polar, Point } from 'polar';
 
-import './style.scss';
-
 type CursorEvent = { pageX: number, pageY: number };
-
-const windowCenter = (): Point => {
-	if ( window ) {
-		return {
-			x: window.innerWidth * 0.5,
-			y: window.innerHeight * 0.5
-		};
-	}
-	return { x: 0, y: 0 };
-};
 
 const wave1 = addAll(
 	wave( 6, 3, -0.01 ),
@@ -48,26 +40,20 @@ const wave3 = addAll(
 	wave( 4, 1, -0.05 )
 );
 
-const mouseVectorUpdater = (): (() => Polar) => {
-	const currentViewer = document.createElement('div');
-	const targetViewer = document.createElement('div');
+const mouseVectorUpdater: (() => Point) => () => Polar = (getCenter) => {
 	let idle = true;
 	let speed = 0;
 	const setIdle = throttle( () => {
 		idle = true;
 	}, 2000, { leading: false } );
-	const body = document.body;
-	if ( body != null ) {
-		body.appendChild( targetViewer );
-		body.appendChild( currentViewer );
-	}
+
 	let current: Polar = { degree: 0, radius: 0 };
 	let target: Polar = current;
 	const updateVector = (e: CursorEvent) => {
 		idle = false;
 		speed = 0;
 		setIdle();
-		target = vectorBetween(windowCenter(), { x: e.pageX, y: e.pageY });
+		target = vectorBetween(getCenter(), { x: e.pageX, y: e.pageY });
 	};
 	document.addEventListener( 'mousemove', updateVector );
 	document.addEventListener( 'touchstart', (e: TouchEvent) => {
@@ -122,11 +108,11 @@ const mouseVectorUpdater = (): (() => Polar) => {
 
 	return () => current;
 };
-const mouseVector = mouseVectorUpdater();
 
-const ring1 = atLeast(90, mouseDampened( wave1, mouseVector ) );
-const ring2 = atLeast(90, mouseDampened( wave2, mouseVector ) );
-const ring3 = atLeast(90, mouseDampened( wave3, mouseVector ) );
+type VectorProvider = () => Polar;
+const ring1 = (mouseVector: VectorProvider) => atLeast(90, mouseDampened( wave1, mouseVector ) );
+const ring2 = (mouseVector: VectorProvider) => atLeast(90, mouseDampened( wave2, mouseVector ) );
+const ring3 = (mouseVector: VectorProvider) => atLeast(90, mouseDampened( wave3, mouseVector ) );
 
 const fullScreenSVG = (... children: ElementGenerator[]) => node(
     
@@ -140,12 +126,12 @@ const fullScreenSVG = (... children: ElementGenerator[]) => node(
 	children
 );
 
-const centeredGroup = ( ... children: ElementGenerator[] ) => node(
+const centeredGroup = (centerProvider: () => Point) => ( ... children: ElementGenerator[] ) => node(
 	{
 		tag: 'g',
 		decorator: (element) => {
 			const updateCenter = () => {
-				const center = windowCenter();
+				const center = centerProvider();
 				element.setAttribute( 'transform', `translate(${center.x}, ${center.y})`);            
 			};
 			window.addEventListener('resize', debounce(() => {
@@ -163,7 +149,7 @@ const attributes = ( atts: { [string]: string } ) => ( element: Element) => {
 	}
 }; 
 
-const image = fullScreenSVG(
+const image = (centerer, vectorProvider: VectorProvider, points: () => number) => fullScreenSVG(
 	defs(
 		node( { tag: 'pattern', decorator: attributes( {
 			id: 'dots',
@@ -179,15 +165,70 @@ const image = fullScreenSVG(
 			} )  })
 		] )
 	),
-	centeredGroup(
-		ring( ring1 ),
-		ring( ring2 ),
-		ring( ring3 ),
+	centeredGroup(centerer)(
+		ring( ring1(vectorProvider), points ),
+		ring( ring2(vectorProvider), points ),
+		ring( ring3(vectorProvider), points ),
 	)
 );
 
-const graph = render( image );
+type Ref<T> = { current: null | T };
 
-if (document.body) {
-	document.body.appendChild(graph);
+type State = {
+	points: number,
+}
+
+export default class Component extends React.Component<{}, State> {
+	container: Ref<HTMLDivElement> = React.createRef();
+
+	state = {
+		points: 36,
+	}
+
+	componentDidMount() {
+		const container = this.container.current;
+		if (container) {
+			const getCenter = () => ({
+				x: container.offsetLeft + container.offsetWidth * 0.5,
+				y: container.offsetTop + container.offsetHeight * 0.5,
+			});
+			const graph = ringRender(image(
+				getCenter,
+				mouseVectorUpdater(getCenter),
+				() => this.state.points
+			));
+			container.appendChild(graph);
+		}
+	}
+
+	componentWillUnmount() {
+		console.log('time to stop the event listeners');
+	}
+
+	handlePointsChange = (event: SyntheticInputEvent<HTMLInputElement>) => {
+		const points = parseInt(event.target.value);
+		if (points > 0) {
+			this.setState({ points });
+		}
+	}
+
+	render() {
+		return (
+			<React.Fragment>
+				<div className="container" ref={this.container}></div>
+				<div className="controls">
+					<label>
+						Points
+						<input
+							type="number"
+							value={this.state.points}
+							min={3}
+							max={180}
+							onChange={this.handlePointsChange}
+						/>
+					</label>
+				</div>
+			</React.Fragment>
+		);
+	}
 }

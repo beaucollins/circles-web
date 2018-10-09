@@ -1,11 +1,33 @@
 body {
-	background: black;
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	right: 0;
-	left: 0;
+	background: white;
 	margin: 0;
+	font-family: Futura;
+	display: flex;
+	min-height: 100vh;
+}
+
+#app {
+	display: flex;
+	flex: 1 1 100%;
+	flex-direction: column;
+}
+
+.container {
+	background: black;
+	color: #EEE;
+	flex: 1 1 100%;
+	min-height: 300px;
+	overflow: auto;
+}
+
+.controls {
+	text-align: center;
+	padding: 8px;
+
+	input {
+		vertical-align: baseline;
+		margin-left: 4px;
+	}
 }
 
 svg {
@@ -18,7 +40,7 @@ svg > g {
 }
 
 path {
-	mix-blend-mode: multiply;
+	mix-blend-mode: darken;
 }
 
 path:nth-child(1) {
