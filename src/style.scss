@@ -1,7 +1,8 @@
 body {
 	background: white;
 	margin: 0;
-	font-family: Futura;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	font-weight: 100;
 	display: flex;
 	min-height: 100vh;
 }
@@ -24,9 +25,9 @@ body {
 	text-align: center;
 	padding: 8px;
 
-	input {
-		vertical-align: baseline;
-		margin-left: 4px;
+	input, select {
+		vertical-align: text-bottom;
+		margin: 0 4px;
 	}
 }
 
@@ -39,18 +40,28 @@ svg > g {
 	isolation: isolate;
 }
 
-path {
-	mix-blend-mode: darken;
+label {
+	padding: 0 8px;
 }
 
-path:nth-child(1) {
-	fill: #f0f;
+// path {
+// 	mix-blend-mode: darken;
+// }
+
+.picker-holder {
+	display: inline-block;
+	vertical-align: middle;
+	margin: 0 4px;
 }
 
-path:nth-child(2) {
-	fill: #0ff;
-}
+// path:nth-child(1) {
+// 	fill: #f0f;
+// }
 
-path:nth-child(3) {
-	fill: #ff0;
-}
+// path:nth-child(2) {
+// 	fill: #0ff;
+// }
+
+// path:nth-child(3) {
+// 	fill: #ff0;
+// }

@@ -2,7 +2,7 @@
  * @flow
  */
 import { createSVGElement } from './svg';
-import { pipe, reduce, defaultTo, head, tail } from 'ramda';
+import { pipe, reduce, defaultTo, head, tail, identity } from 'ramda';
 import { increment } from 'radius-generator';
 import { polarToCartesian } from './polar';
 
@@ -15,10 +15,11 @@ export type PathDecorator = (Element) => Element;
 /**
  * Create a ring
  */
-export default ( radius: RadiusGenerator, vertices: () => number = () => 90 ): ElementGenerator => {
+export default ( radius: RadiusGenerator, vertices: () => number = () => 90, decorator: PathDecorator = identity ): ElementGenerator => {
 	// generate a list of points around a given center
 	const path = createSVGElement('path');
 	const update = () => {
+		decorator(path);
 		const count = vertices();
 		const points: Point[] = increment(pipe(
 			degree => (90 + degree) % 360,

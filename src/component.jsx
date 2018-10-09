@@ -1,12 +1,20 @@
 /**
  * @flow
  */
+/**
+ * External deps
+ */
 import * as React from 'react';
 import { render } from 'react-dom';
-import { node } from './svg';
-import { vectorBetween } from './polar';
+import ColorPicker from 'rc-color-picker';
+import 'rc-color-picker/assets/index.css';
 
-import { defs } from './svg-defs';
+/**
+ * Internal Deps
+ */
+import { node } from 'svg';
+import { vectorBetween } from 'polar';
+import { defs } from 'svg-defs';
 import { reduce } from 'ramda';
 import { debounce, throttle } from 'lodash';
 import { addAll, atLeast, mouseDampened } from 'radius-generator';
@@ -15,6 +23,9 @@ import ring from 'ring';
 import ringRender from 'render';
 import wave from 'wave';
 
+/**
+ * @flow types
+ */
 import type { ElementGenerator } from 'svg';
 import type { Polar, Point } from 'polar';
 
@@ -149,7 +160,33 @@ const attributes = ( atts: { [string]: string } ) => ( element: Element) => {
 	}
 }; 
 
-const image = (centerer, vectorProvider: VectorProvider, points: () => number) => fullScreenSVG(
+type Color = string;
+type ColorSet = [Color, Color, Color];
+
+type Configuration = {
+	getCenter: () => Point,
+	getVector: () => Polar,
+	getColors: () => ColorSet,
+	getPoints: () => number,
+	getMode: () => string,
+}
+
+function ringAtts(atts: {[string]: string }) {
+	return (element: Element) => {
+		attributes(atts)(element);
+		return element;
+	};
+}
+
+function fillFromSet(config: Configuration, index: number) {
+	return (element: Element) => ringAtts({
+		fill: config.getColors()[index],
+		style: 'mix-blend-mode: ' + config.getMode(),
+		'mix-blend-mode': 'darken',
+	})(element);
+}
+
+const image = (configuration: Configuration) => fullScreenSVG(
 	defs(
 		node( { tag: 'pattern', decorator: attributes( {
 			id: 'dots',
@@ -165,10 +202,10 @@ const image = (centerer, vectorProvider: VectorProvider, points: () => number) =
 			} )  })
 		] )
 	),
-	centeredGroup(centerer)(
-		ring( ring1(vectorProvider), points ),
-		ring( ring2(vectorProvider), points ),
-		ring( ring3(vectorProvider), points ),
+	centeredGroup(configuration.getCenter)(
+		ring( ring1(configuration.getVector), configuration.getPoints, fillFromSet(configuration, 0)),
+		ring( ring2(configuration.getVector), configuration.getPoints, fillFromSet(configuration, 1)),
+		ring( ring3(configuration.getVector), configuration.getPoints, fillFromSet(configuration, 2)),
 	)
 );
 
@@ -176,13 +213,42 @@ type Ref<T> = { current: null | T };
 
 type State = {
 	points: number,
+	colors: ColorSet,
+	blendMode: string,
 }
+
+type ColorChangeEvent = {
+	color: Color,
+	alpha: number,
+	open: boolean,
+}
+
+const BlendModeOptions = [
+	'normal',
+	'multiply',
+	'screen',
+	'overlay',
+	'darken',
+	'lighten',
+	'color-dodge',
+	'color-burn',
+	'hard-light',
+	'soft-light',
+	'difference',
+	'exclusion',
+	'hue',
+	'saturation',
+	'color',
+	'luminosity',
+];
 
 export default class Component extends React.Component<{}, State> {
 	container: Ref<HTMLDivElement> = React.createRef();
 
 	state = {
-		points: 60,
+		points: 18,
+		colors: ['#F00', '#0F0', '#00F'],
+		blendMode: 'screen',
 	}
 
 	componentDidMount() {
@@ -192,11 +258,13 @@ export default class Component extends React.Component<{}, State> {
 				x: container.offsetLeft + container.offsetWidth * 0.5,
 				y: container.offsetTop + container.offsetHeight * 0.5,
 			});
-			const graph = ringRender(image(
+			const graph = ringRender(image({
 				getCenter,
-				mouseVectorUpdater(getCenter),
-				() => this.state.points
-			));
+				getVector: mouseVectorUpdater(getCenter),
+				getPoints: () => this.state.points,
+				getColors: () => this.state.colors,
+				getMode: () => this.state.blendMode,
+			}));
 			container.appendChild(graph);
 		}
 	}
@@ -210,6 +278,16 @@ export default class Component extends React.Component<{}, State> {
 		if (points > 0) {
 			this.setState({ points });
 		}
+	}
+
+	handleColorChange = (index: number) => (event: ColorChangeEvent) => {
+		const colors = [... this.state.colors];
+		colors[index] = event.color;
+		this.setState({ colors });
+	}
+
+	handleModeChange = (event: SyntheticInputEvent<HTMLSelectElement>) => {
+		this.setState({ blendMode: event.currentTarget.value });
 	}
 
 	render() {
@@ -226,6 +304,29 @@ export default class Component extends React.Component<{}, State> {
 							max={180}
 							onChange={this.handlePointsChange}
 						/>
+					</label>
+					<label>
+						Colors
+						<div className="picker-holder">
+							{this.state.colors.map((color, index) =>
+								<ColorPicker key={index}
+									color={color}
+									enableAlpha={false}
+									onChange={this.handleColorChange(index)}
+								/>
+							)}
+						</div>
+					</label>
+					<label>
+						Blend Mode
+						<select
+							value={this.state.blendMode}
+							onChange={this.handleModeChange}
+						>
+							{BlendModeOptions.map((mode, key) =>
+								<option key={key}>{mode}</option>
+							)}
+						</select>
 					</label>
 				</div>
 			</React.Fragment>
