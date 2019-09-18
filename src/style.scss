@@ -19,6 +19,13 @@ body {
 	flex: 1 1 100%;
 	min-height: 300px;
 	overflow: auto;
+	display: flex;
+	flex-direction: row;
+	justify-content: stretch;
+
+	> div {
+		flex: 1;
+	}
 }
 
 .controls {

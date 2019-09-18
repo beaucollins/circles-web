@@ -215,6 +215,7 @@ type State = {
 	points: number,
 	colors: ColorSet,
 	blendMode: string,
+	backgroundColor: string,
 }
 
 type ColorChangeEvent = {
@@ -242,35 +243,52 @@ const BlendModeOptions = [
 	'luminosity',
 ];
 
-export default class Component extends React.Component<{}, State> {
-	container: Ref<HTMLDivElement> = React.createRef();
+type RingProps = {
+	colors: ColorSet,
+	blendMode: string,
+	points: number,
+};
 
-	state = {
-		points: 18,
-		colors: ['#F00', '#0F0', '#00F'],
-		blendMode: 'screen',
-	}
+class Ring extends React.Component<RingProps> {
+
+	static defaultProps = {
+		magnitude: 1,
+	};
+
+	container: Ref<HTMLDivElement> = React.createRef();
 
 	componentDidMount() {
 		const container = this.container.current;
 		if (container) {
 			const getCenter = () => ({
-				x: container.offsetLeft + container.offsetWidth * 0.5,
+				x: container.offsetWidth * 0.5,
 				y: container.offsetTop + container.offsetHeight * 0.5,
 			});
 			const graph = ringRender(image({
 				getCenter,
 				getVector: mouseVectorUpdater(getCenter),
-				getPoints: () => this.state.points,
-				getColors: () => this.state.colors,
-				getMode: () => this.state.blendMode,
+				getPoints: () => this.props.points,
+				getColors: () => this.props.colors,
+				getMode: () => this.props.blendMode,
 			}));
 			container.appendChild(graph);
-		}
+		};
 	}
 
-	componentWillUnmount() {
-		console.log('time to stop the event listeners');
+	render() {
+		return (
+			<div ref={this.container}></div>
+		);
+	}
+
+}
+export default class Component extends React.Component<{}, State> {
+
+	state = {
+		points: 90,
+		colors: ['#F00', '#0F0', '#00F'],
+		blendMode: 'screen',
+		backgroundColor: '#000',
 	}
 
 	handlePointsChange = (event: SyntheticInputEvent<HTMLInputElement>) => {
@@ -290,10 +308,16 @@ export default class Component extends React.Component<{}, State> {
 		this.setState({ blendMode: event.currentTarget.value });
 	}
 
+	handleBackgroundColorChange = (event: ColorChangeEvent) => {
+		this.setState({ backgroundColor: event.color });
+	}
+
 	render() {
 		return (
 			<React.Fragment>
-				<div className="container" ref={this.container}></div>
+				<div className="container" style={{ backgroundColor: this.state.backgroundColor }}>
+					<Ring points={this.state.points} colors={this.state.colors} blendMode={this.state.blendMode} />
+				</div>
 				<div className="controls">
 					<label>
 						Points
@@ -315,6 +339,16 @@ export default class Component extends React.Component<{}, State> {
 									onChange={this.handleColorChange(index)}
 								/>
 							)}
+						</div>
+					</label>
+					<label>
+						Background
+						<div className="picker-holder">
+							<ColorPicker
+								color={this.state.backgroundColor}
+								enableAlpha={false}
+								onChange={this.handleBackgroundColorChange}
+							/>
 						</div>
 					</label>
 					<label>
