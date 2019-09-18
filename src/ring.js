@@ -26,8 +26,10 @@ export default ( radius: RadiusGenerator, vertices: () => number = () => 90, dec
 			(degree: number) => ( { degree, radius: radius(degree) } ),
 			polarToCartesian
 		), 360, 360 / (count <= 0 ? 90 : count));
-		const first = defaultTo({ x: 0, y: 0 }, head(points));
-		const d = reduce( ( options, point: Point ) => {
+		const [head, ...rest] = points;
+
+		const first: Point = head != null ? head : { x: 0, y: 0 };
+		const d = reduce<{d: string, previous: Point}, Point>( ( options, point: Point ) => {
 			const delta = {
 				x: point.x - options.previous.x,
 				y: point.y - options.previous.y
@@ -36,10 +38,10 @@ export default ( radius: RadiusGenerator, vertices: () => number = () => 90, dec
 				d: `${options.d} l${delta.x},${delta.y}`,
 				previous: point
 			};
-		}, { d: `M${first.x},${first.y}`, previous: first }, tail(points) );
+		}, { d: `M${first.x},${first.y}`, previous: first }, rest );
 		path.setAttribute('d', `${d.d} Z`);
 	};
-    
+
 	return () => {
 		update();
 		return path;
